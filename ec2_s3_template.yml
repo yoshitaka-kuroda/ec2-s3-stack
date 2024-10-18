@@ -1,0 +1,40 @@
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0ddc798b3f1a5117e # 無料ティア枠のlinux 2 AMI(HVM)を選択。2023よりもトラブルシューティングが容易な為。
+      IamInstanceProfile: 
+        Ref: EC2IAMRole
+
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-simple-bucket-2024-unique1018
+
+  EC2IAMRole:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: 
+        - Ref: MyEC2Role
+
+  MyEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3Access
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource: "*"
